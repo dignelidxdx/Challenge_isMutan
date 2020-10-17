@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Mutan {
     
-    List<ADN> adn = new ArrayList<>();
+    List<ADNSample> adn = new ArrayList<>();
 
     
 }

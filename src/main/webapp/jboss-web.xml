@@ -1,0 +1,3 @@
+<jboss-web>
+    <context-root>/springboot</context-root>
+</jboss-web>
