@@ -10,4 +10,7 @@ public class StatsResponse {
     public long countHumanDNA;
     @JsonProperty("ratio")
     public double ratio;
+
+    @JsonProperty("total_count")
+    public long totalCount;
 }

@@ -1,11 +1,11 @@
 package ar.com.mutan.xmen.services;
 
-import java.util.Random;
-import java.util.concurrent.CompletableFuture;
+import java.util.Date;
+import java.util.concurrent.Future;
 
-import org.apache.logging.log4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import ar.com.mutan.xmen.entities.DNASample;
@@ -23,30 +23,6 @@ public class MutantService {
     @Autowired
     HumanRepository humanRepo;
 
-    private Logger logger = LogManager.getLogger(MutantService.class);
-
-    @Async("threadPoolExecutor")
-    public CompletableFuture<String> isValid(DNASample dna) {
-        logger.info("Validando si es mutante" + dna.getDna()); //Tambien puede ir LoggerFactory
-
-        int tiempo = ejecutarTiempoEjecucion();
-
-        return CompletableFuture.completedFuture("Se calculo " + dna.getDna() + " durante " + tiempo / 1000 + " segundos");
-
-    }
-
-    public int ejecutarTiempoEjecucion() {
-        int tiempo = new Random().nextInt(1000);
-        try {
-            Thread.sleep(tiempo);
-        } catch (InterruptedException ex) {
-            logger.error("Ha ocurrido un error ", ex);
-        }
-
-        return tiempo;
-    }
-
-    
     public void create(Mutant mutant) {
 
         this.mutantRepo.save(mutant);
@@ -72,7 +48,7 @@ public class MutantService {
 
     }
 
-    public Mutant registerSample(String[] dna) {
+    public Mutant registerSample(String[] dna, String name) {
 
         DNASample sample = new DNASample(dna);
 
@@ -81,6 +57,7 @@ public class MutantService {
             //Solo para mutantes lo encripto
             mutant.setDna(sample.encrypt());
             mutant.setUniqueHash(sample.uniqueHash());
+            mutant.setName(name);
             this.create(mutant);
             return mutant;
         } else {
@@ -135,4 +112,37 @@ public class MutantService {
         return humanRepo.count();
 
     }
+
+    public Long countAll() {
+        System.out.println("Count ALL, Thread : " + Thread.currentThread().getId());
+        return this.countMutants() + this.countHumans();
+
+    }
+
+    @Async
+    public Future<Long> countMutantsAsync() {
+
+        long resultado = mutantRepo.count();
+        return new AsyncResult<Long>(resultado);
+
+    }
+
+    @Async
+    public void imprimirComoVamos() {
+        System.out.println("Creo que vamos bien...Empezando " + Thread.currentThread().getId());
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("Creo que vamos bien...Finalizado " + Thread.currentThread().getId());
+    }
+
+    public Mutant firstMutant(){
+        Mutant m = mutantRepo.findAll().get(0);
+
+        return m;
+    }
+
 }
