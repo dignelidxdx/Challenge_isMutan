@@ -1,23 +1,32 @@
 package ar.com.mutan.xmen.services;
 
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.logging.log4j.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import ar.com.mutan.xmen.entities.ADNSample;
-import ar.com.mutan.xmen.modals.MutantRequest;
+import ar.com.mutan.xmen.entities.DNASample;
+import ar.com.mutan.xmen.entities.Human;
+import ar.com.mutan.xmen.entities.Mutant;
+import ar.com.mutan.xmen.repositories.HumanRepository;
+import ar.com.mutan.xmen.repositories.MutantRepository;
+import ar.com.mutan.xmen.utils.MatrixDNAIterator;
 
 @Service
 public class MutantService {
 
+    @Autowired
+    MutantRepository mutantRepo;
+    @Autowired
+    HumanRepository humanRepo;
+
     private Logger logger = LogManager.getLogger(MutantService.class);
 
     @Async("threadPoolExecutor")
-    public CompletableFuture<String> isValid(ADNSample dna) {
+    public CompletableFuture<String> isValid(DNASample dna) {
         logger.info("Validando si es mutante" + dna.getDna()); //Tambien puede ir LoggerFactory
 
         int tiempo = ejecutarTiempoEjecucion();
@@ -37,27 +46,93 @@ public class MutantService {
         return tiempo;
     }
 
-    public boolean isMutant(String[] dna){
-        
-        return true;
-    }
     
-    public boolean isMutant(MutantRequest mutantADN) {
-        List<String> adn = mutantADN.dna;
+    public void create(Mutant mutant) {
 
-        for (int i = 0; i < adn.size(); i++) {
-
-            for (int j = 0; j < adn.get(i).length(); j++) {
-                char letter = adn.get(i).charAt(j);
-
-                if((adn.get(i).equals("ATGCGA") || adn.get(i).equals("CAGTGC") || adn.get(i).equals("TTATGT") || adn.get(i).equals("AGAAGG") || adn.get(i).equals("CCCCTA") || adn.get(i).equals("TCACTG") || String.valueOf(letter).equals("A") || String.valueOf(letter).equals("T") || String.valueOf(letter).equals("C") || String.valueOf(letter).equals("G")) && (adn.get(i).length() == 6))
-                    return true; 
-                else if(adn.get(i).length() != 6) 
-                    return false; 
-                else return false;  
-            }               
-        }
-        return false;        
+        this.mutantRepo.save(mutant);
     }
 
+    public void create(Human human) {
+
+        this.humanRepo.save(human);
+    }
+
+    public boolean exists(String[] dna) {
+
+        DNASample sample = new DNASample(dna);
+        String uniqueHash = sample.uniqueHash();
+
+        if (mutantRepo.findByUniqueHash(uniqueHash) != null)
+            return true;
+
+        if (humanRepo.findByUniqueHash(uniqueHash) != null)
+            return true;
+
+        return false;
+
+    }
+
+    public Mutant registerSample(String[] dna) {
+
+        DNASample sample = new DNASample(dna);
+
+        if (this.isMutant(dna)) {
+            Mutant mutant = new Mutant();
+            //Solo para mutantes lo encripto
+            mutant.setDna(sample.encrypt());
+            mutant.setUniqueHash(sample.uniqueHash());
+            this.create(mutant);
+            return mutant;
+        } else {
+            Human human = new Human();
+            human.setDna(dna);
+            human.setUniqueHash(sample.uniqueHash());
+            this.create(human);
+            return null;
+        }
+    }
+
+    public boolean isValid(String[] dna) {
+
+        DNASample sample = new DNASample(dna);
+        return sample.isValid();
+    }
+
+    public boolean isMutant(String[] dna) {
+
+        MatrixDNAIterator iterator = new MatrixDNAIterator();
+
+        DNASample sample = new DNASample(dna);
+
+        System.out.println(sample.toString());
+
+        int matches = 0;
+        int matchesByRows = 0;
+        int matchesByColumns = 0;
+        int matchesByDiagonals = 0;
+
+        matchesByRows = iterator.matchesByRows(sample);
+        System.out.println("Matcheos por Rows " + matchesByRows);
+        matchesByColumns = iterator.matchesByColumns(sample);
+        System.out.println("Matcheos por Columns " + matchesByColumns);
+        matchesByDiagonals = iterator.matchesByDiagonals(sample);
+        System.out.println("Matcheos por Diagonals " + matchesByDiagonals);
+
+        matches = matchesByRows + matchesByColumns + matchesByDiagonals;
+
+        return matches > 1;
+
+    }
+
+    public long countMutants() {
+
+        return mutantRepo.count();
+
+    }
+
+    public long countHumans() {
+
+        return humanRepo.count();
+
+    }
 }
