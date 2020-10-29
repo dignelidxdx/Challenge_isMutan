@@ -14,7 +14,7 @@ import ar.com.mutan.xmen.entities.Mutant;
 import ar.com.mutan.xmen.repositories.HumanRepository;
 import ar.com.mutan.xmen.repositories.MutantRepository;
 import ar.com.mutan.xmen.utils.MatrixDNAIterator;
-
+import ar.com.mutan.xmen.utils.StringUtils;
 @Service
 public class MutantService {
 
@@ -139,10 +139,61 @@ public class MutantService {
         System.out.println("Creo que vamos bien...Finalizado " + Thread.currentThread().getId());
     }
 
-    public Mutant firstMutant(){
+    public Mutant firstMutant() {
         Mutant m = mutantRepo.findAll().get(0);
 
         return m;
     }
 
+    /**
+     * Valida que el nombre sea solo letras y espacios
+     * @param name
+     * @return
+     */
+    public boolean nameIsValid(String name) {
+
+        
+        //Con regex
+        // [] => significan 1 caracter
+        // a-z => significa desde 'a' a 'z'
+        // A-Z => igual qeu antes en mayuscula
+        // ñ => 'ñ'
+        // Ñ => 'Ñ'
+        // + => al menos un token de lo que esta a la izquierda (1 a N)
+        // \s => es un espacio
+        // *  => todo el token sobre la izquierda de 0 a N
+        // $ => fin del caracter
+        // ? => uno o ninguno
+        // \p{L} => permite cualquier cosa que se pueda representar como letra en el mapa Unicode
+        // \p{N} => permite cualquier cosa que sea representacion numerica
+        String regex = "^[a-zA-ZñÑáíéóú]\'?[a-zA-ZñÑáíéóú]*(\s[a-zA-ZñÑáíéóú]+)*$";
+        //Este para super internacional
+        //String regex = "^\\p{L}\'?\\p{L}*(\s\\p{L}+)*$";
+
+        return StringUtils.isMatch(regex, name);
+
+    }
+
+
+    /**
+     * Valida que el nombre sea solo letras y espacios
+     * @param name
+     * @return
+     */
+    private boolean nameIsValidOldSchool(String name) {
+
+        if (name == "" || name == null)
+            return false;
+
+        for (char letter : name.toCharArray()) {
+
+            if (!((letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z') || letter == ' '
+            || letter == 'ñ' || letter == 'Ñ')
+                )
+                return false;
+
+        }
+
+        return true;
+    }
 }

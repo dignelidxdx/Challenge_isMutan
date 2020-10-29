@@ -6,12 +6,14 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 // Spring Boot 1.x
 //import org.springframework.boot.web.support.SpringBootServletInitializer;
 @SpringBootApplication
 @EnableAsync
+@EnableScheduling
 public class XmenApplication extends SpringBootServletInitializer {
 
 	@Bean("threadPoolExecutor") //para la ejecucion del pool de hilos que se ejecutara
