@@ -153,7 +153,7 @@ public class MutantService {
     public boolean nameIsValid(String name) {
 
         
-        //Con regex
+         //Con regex
         // [] => significan 1 caracter
         // a-z => significa desde 'a' a 'z'
         // A-Z => igual qeu antes en mayuscula
@@ -167,10 +167,14 @@ public class MutantService {
         // \p{L} => permite cualquier cosa que se pueda representar como letra en el mapa Unicode
         // \p{N} => permite cualquier cosa que sea representacion numerica
         String regex = "^[a-zA-ZñÑáíéóú]\'?[a-zA-ZñÑáíéóú]*(\s[a-zA-ZñÑáíéóú]+)*$";
+        String regex2 = "^wolverine\\.\\d{6}$"; // ^\w+\.\d{6}$
+        String regex3 = "^holita\\.\\d{6}$";
+        //"^[Hh][Oo][Ll][Aa]\.[\d]{6,6}*$";
+
         //Este para super internacional
         //String regex = "^\\p{L}\'?\\p{L}*(\s\\p{L}+)*$";
 
-        return StringUtils.isMatch(regex, name);
+        return StringUtils.isMatchCaseInsensitive(regex, name);
 
     }
 

@@ -13,6 +13,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 //import org.springframework.boot.web.support.SpringBootServletInitializer;
 @SpringBootApplication
 @EnableAsync
+// agregar esta anotacion para permitir Batch Progress
 @EnableScheduling
 public class XmenApplication extends SpringBootServletInitializer {
 

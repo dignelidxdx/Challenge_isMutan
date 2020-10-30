@@ -1,6 +1,8 @@
 package ar.com.mutan.xmen.entities;
 
 import ar.com.mutan.xmen.security.Crypto;
+import ar.com.mutan.xmen.utils.StringUtils;
+
 
 public class DNASample {
 
@@ -62,8 +64,22 @@ public class DNASample {
         return true;
     }
 
-    private boolean lettersOk() {
+    public boolean lettersOk() { //Con REGEX
+        //dna = {"ATGCGAA","CAGTGCA","TTATGTA","AGAAGGA","CCCCTAA","TCACTGA","TCGAACT"};		
+        
+        String regex = "^[ACTG]{4,}$";
+        for(String secuence : dna){
+            if (!StringUtils.isMatch(regex, secuence))
+                return false;
+        }
 
+        return true;
+    }
+
+    private boolean lettersOkOldSchool() { //DEPRECATED
+
+        //dna = {"ATGCGAA","CAGTGCA","TTATGTA","AGAAGGA","CCCCTAA","TCACTGA","TCGAACT"};		
+        
         for (String secuence : dna) {
 
             for (char letter : secuence.toCharArray()) {
@@ -123,7 +139,4 @@ public class DNASample {
         return dna;
     }
 
-    public void setDna(String[] dna) {
-        this.dna = dna;
-    }
 }
